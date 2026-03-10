@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="tmpl_dashboard" name="Hospital Dashboard">
+        <t t-call="website.layout">
+            <t t-set="no_footer" t-value="True"/>
+            <div id="wrap" class="hms-page hms-dashboard-page">
+                <section class="hms-page-hero">
+                    <div class="container hms-page-hero__inner">
+                        <div>
+                            <div class="hms-breadcrumb">
+                                <a href="/hospital">Hospital</a>
+                                <span>/</span>
+                                <span><t t-esc="'Admin Dashboard' if dashboard_scope == 'admin' else 'My Dashboard'"/></span>
+                            </div>
+                            <t t-if="dashboard_scope == 'admin'">
+                                <span class="hms-kicker hms-kicker--light">Administrator view</span>
+                                <h1>Global Hospital Dashboard</h1>
+                                <p>See hospital-wide volume, recent activity and the live appointment queue.</p>
+                            </t>
+                            <t t-else="">
+                                <span class="hms-kicker hms-kicker--light">Personal activity</span>
+                                <h1>My Care Dashboard</h1>
+                                <p>Track only your own patients, appointments and upcoming visits in one focused view.</p>
+                            </t>
+                        </div>
+                        <div class="hms-inline-actions">
+                            <a href="/hospital/create-patient" class="hms-btn hms-btn--primary">Register Patient</a>
+                            <a href="/hospital/book-appointment" class="hms-btn hms-btn--ghost">Book Appointment</a>
+                            <t t-if="dashboard_scope == 'personal' and is_admin">
+                                <a href="/hospital/dashboard/admin" class="hms-btn hms-btn--soft">Global Admin Dashboard</a>
+                            </t>
+                            <t t-if="dashboard_scope == 'admin'">
+                                <a href="/hospital/dashboard" class="hms-btn hms-btn--soft">Back to My Dashboard</a>
+                            </t>
+                        </div>
+                    </div>
+                </section>
+
+                <t t-call="website_hms.portal_flash"/>
+
+                <div class="container hms-page-body">
+                    <t t-if="dashboard_scope == 'admin'">
+                        <section class="hms-metric-grid">
+                            <article class="hms-metric-card">
+                                <span>Total Patients</span>
+                                <strong><t t-esc="total_patients"/></strong>
+                                <small>Full patient registry</small>
+                            </article>
+                            <article class="hms-metric-card">
+                                <span>Total Appointments</span>
+                                <strong><t t-esc="total_appointments"/></strong>
+                                <small>All bookings across the system</small>
+                            </article>
+                            <article class="hms-metric-card">
+                                <span>Upcoming Visits</span>
+                                <strong><t t-esc="upcoming_count"/></strong>
+                                <small>Future appointments still active</small>
+                            </article>
+                            <article class="hms-metric-card">
+                                <span>Confirmed</span>
+                                <strong><t t-esc="confirmed_count"/></strong>
+                                <small>Ready for patient care</small>
+                            </article>
+                            <article class="hms-metric-card">
+                                <span>Draft</span>
+                                <strong><t t-esc="draft_count"/></strong>
+                                <small>Still awaiting review</small>
+                            </article>
+                            <article class="hms-metric-card">
+                                <span>Completed</span>
+                                <strong><t t-esc="done_count"/></strong>
+                                <small>Finished visits</small>
+                            </article>
+                        </section>
+
+                        <section class="hms-grid hms-grid--2">
+                            <article class="hms-data-card">
+                                <div class="hms-data-card__head">
+                                    <div>
+                                        <span class="hms-kicker">Recent patients</span>
+                                        <h2>Latest registrations</h2>
+                                    </div>
+                                    <a href="/hospital/my-patients" class="hms-text-link">Open patient list</a>
+                                </div>
+                                <div class="hms-table-wrap">
+                                    <table class="hms-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Reference</th>
+                                                <th>Name</th>
+                                                <th>Mobile</th>
+                                                <th>Owner</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-if="recent_patients">
+                                                <t t-foreach="recent_patients" t-as="patient">
+                                                    <tr>
+                                                        <td data-label="Reference"><span class="hms-pill"><t t-esc="patient.reference"/></span></td>
+                                                        <td data-label="Name">
+                                                            <div class="hms-table-user">
+                                                                <span class="hms-avatar"><t t-esc="(patient.name or 'P')[:1].upper()"/></span>
+                                                                <div>
+                                                                    <strong><t t-esc="patient.name"/></strong>
+                                                                    <small><t t-esc="patient.gender or 'Not set'"/></small>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td data-label="Mobile"><t t-esc="patient.mobile or '-'"/></td>
+                                                        <td data-label="Owner"><t t-esc="patient.owner_user_id.name or 'Unassigned'"/></td>
+                                                    </tr>
+                                                </t>
+                                            </t>
+                                            <t t-else="">
+                                                <tr>
+                                                    <td colspan="4" class="hms-table-empty">No patients found yet.</td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </article>
+
+                            <article class="hms-data-card">
+                                <div class="hms-data-card__head">
+                                    <div>
+                                        <span class="hms-kicker">Live queue</span>
+                                        <h2>Upcoming appointments</h2>
+                                    </div>
+                                    <a href="/hospital/my-appointments" class="hms-text-link">Open appointment list</a>
+                                </div>
+                                <div class="hms-table-wrap">
+                                    <table class="hms-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Reference</th>
+                                                <th>Patient</th>
+                                                <th>Date</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-if="upcoming_appointments">
+                                                <t t-foreach="upcoming_appointments" t-as="appointment">
+                                                    <tr>
+                                                        <td data-label="Reference"><span class="hms-pill hms-pill--green"><t t-esc="appointment.reference"/></span></td>
+                                                        <td data-label="Patient"><t t-esc="appointment.patient_id.name"/></td>
+                                                        <td data-label="Date">
+                                                            <t t-if="appointment.appointment_date">
+                                                                <t t-esc="appointment.appointment_date.strftime('%d %b %Y, %I:%M %p')"/>
+                                                            </t>
+                                                            <t t-else="">-</t>
+                                                        </td>
+                                                        <td data-label="Status">
+                                                            <span t-att-class="'hms-status hms-status--' + (appointment.state or 'draft')">
+                                                                <t t-esc="appointment.state or 'draft'"/>
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                            </t>
+                                            <t t-else="">
+                                                <tr>
+                                                    <td colspan="4" class="hms-table-empty">No upcoming appointments in the queue.</td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </article>
+                        </section>
+
+                        <section class="hms-data-card">
+                            <div class="hms-data-card__head">
+                                <div>
+                                    <span class="hms-kicker">Recent appointments</span>
+                                    <h2>Latest system activity</h2>
+                                </div>
+                            </div>
+                            <div class="hms-table-wrap">
+                                <table class="hms-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Reference</th>
+                                            <th>Patient</th>
+                                            <th>Doctor</th>
+                                            <th>Owner</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-if="recent_appointments">
+                                            <t t-foreach="recent_appointments" t-as="appointment">
+                                                <tr>
+                                                    <td data-label="Reference"><span class="hms-pill hms-pill--green"><t t-esc="appointment.reference"/></span></td>
+                                                    <td data-label="Patient"><t t-esc="appointment.patient_id.name"/></td>
+                                                    <td data-label="Doctor"><t t-esc="appointment.doctor_id.name or 'Not assigned'"/></td>
+                                                    <td data-label="Owner"><t t-esc="appointment.owner_user_id.name or 'Unassigned'"/></td>
+                                                    <td data-label="Status">
+                                                        <span t-att-class="'hms-status hms-status--' + (appointment.state or 'draft')">
+                                                            <t t-esc="appointment.state or 'draft'"/>
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </t>
+                                        <t t-else="">
+                                            <tr>
+                                                <td colspan="5" class="hms-table-empty">No appointment activity found yet.</td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    </t>
+
+                    <t t-else="">
+                        <section class="hms-metric-grid">
+                            <article class="hms-metric-card">
+                                <span>My Patients</span>
+                                <strong><t t-esc="my_patient_count"/></strong>
+                                <small>Profiles in your account</small>
+                            </article>
+                            <article class="hms-metric-card">
+                                <span>My Appointments</span>
+                                <strong><t t-esc="my_appointment_count"/></strong>
+                                <small>Bookings you created</small>
+                            </article>
+                            <article class="hms-metric-card">
+                                <span>Upcoming</span>
+                                <strong><t t-esc="upcoming_count"/></strong>
+                                <small>Future visits on your schedule</small>
+                            </article>
+                            <article class="hms-metric-card">
+                                <span>Confirmed</span>
+                                <strong><t t-esc="confirmed_count"/></strong>
+                                <small>Appointments ready to attend</small>
+                            </article>
+                        </section>
+
+                        <t t-if="show_empty_state">
+                            <section class="hms-empty-state">
+                                <div>
+                                    <span class="hms-kicker">No activity yet</span>
+                                    <h2>Your personal dashboard is ready</h2>
+                                    <p>Start by registering a patient or booking your first appointment. Only records assigned to your account will appear here.</p>
+                                </div>
+                                <div class="hms-inline-actions">
+                                    <a href="/hospital/create-patient" class="hms-btn hms-btn--primary">Register Patient</a>
+                                    <a href="/hospital/book-appointment" class="hms-btn hms-btn--ghost">Book Appointment</a>
+                                </div>
+                            </section>
+                        </t>
+
+                        <section class="hms-grid hms-grid--2">
+                            <article class="hms-data-card">
+                                <div class="hms-data-card__head">
+                                    <div>
+                                        <span class="hms-kicker">Upcoming visits</span>
+                                        <h2>Appointments you should prepare for</h2>
+                                    </div>
+                                    <a href="/hospital/my-appointments" class="hms-text-link">All appointments</a>
+                                </div>
+                                <div class="hms-table-wrap">
+                                    <table class="hms-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Reference</th>
+                                                <th>Patient</th>
+                                                <th>Date</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-if="upcoming_appointments">
+                                                <t t-foreach="upcoming_appointments" t-as="appointment">
+                                                    <tr>
+                                                        <td data-label="Reference"><span class="hms-pill hms-pill--green"><t t-esc="appointment.reference"/></span></td>
+                                                        <td data-label="Patient"><t t-esc="appointment.patient_id.name"/></td>
+                                                        <td data-label="Date">
+                                                            <t t-if="appointment.appointment_date">
+                                                                <t t-esc="appointment.appointment_date.strftime('%d %b %Y, %I:%M %p')"/>
+                                                            </t>
+                                                            <t t-else="">-</t>
+                                                        </td>
+                                                        <td data-label="Status">
+                                                            <span t-att-class="'hms-status hms-status--' + (appointment.state or 'draft')">
+                                                                <t t-esc="appointment.state or 'draft'"/>
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                            </t>
+                                            <t t-else="">
+                                                <tr>
+                                                    <td colspan="4" class="hms-table-empty">No upcoming appointments yet.</td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </article>
+
+                            <article class="hms-data-card">
+                                <div class="hms-data-card__head">
+                                    <div>
+                                        <span class="hms-kicker">Quick actions</span>
+                                        <h2>Most used tasks</h2>
+                                    </div>
+                                </div>
+                                <div class="hms-action-stack">
+                                    <a href="/hospital/create-patient" class="hms-action-tile">
+                                        <strong>Register a new patient</strong>
+                                        <span>Create a secure patient profile with contacts and medical notes.</span>
+                                    </a>
+                                    <a href="/hospital/book-appointment" class="hms-action-tile">
+                                        <strong>Book a consultation</strong>
+                                        <span>Schedule a visit with a doctor and keep the record tied to your account.</span>
+                                    </a>
+                                    <a href="/hospital/my-patients" class="hms-action-tile">
+                                        <strong>Review patient records</strong>
+                                        <span>Open your patient list to edit, delete, or book follow-up appointments.</span>
+                                    </a>
+                                    <a href="/hospital/my-appointments" class="hms-action-tile">
+                                        <strong>Review appointment history</strong>
+                                        <span>See statuses, update bookings and remove draft or cancelled appointments.</span>
+                                    </a>
+                                </div>
+                            </article>
+                        </section>
+
+                        <section class="hms-grid hms-grid--2">
+                            <article class="hms-data-card">
+                                <div class="hms-data-card__head">
+                                    <div>
+                                        <span class="hms-kicker">Recent patients</span>
+                                        <h2>Your latest patient profiles</h2>
+                                    </div>
+                                    <a href="/hospital/my-patients" class="hms-text-link">View patients</a>
+                                </div>
+                                <div class="hms-table-wrap">
+                                    <table class="hms-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Reference</th>
+                                                <th>Name</th>
+                                                <th>Mobile</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-if="recent_patients">
+                                                <t t-foreach="recent_patients" t-as="patient">
+                                                    <tr>
+                                                        <td data-label="Reference"><span class="hms-pill"><t t-esc="patient.reference"/></span></td>
+                                                        <td data-label="Name"><t t-esc="patient.name"/></td>
+                                                        <td data-label="Mobile"><t t-esc="patient.mobile or '-'"/></td>
+                                                        <td data-label="Action"><a t-attf-href="/hospital/patient/#{patient.id}/edit" class="hms-text-link">Edit</a></td>
+                                                    </tr>
+                                                </t>
+                                            </t>
+                                            <t t-else="">
+                                                <tr>
+                                                    <td colspan="4" class="hms-table-empty">No patient records in your account yet.</td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </article>
+
+                            <article class="hms-data-card">
+                                <div class="hms-data-card__head">
+                                    <div>
+                                        <span class="hms-kicker">Recent appointments</span>
+                                        <h2>Your latest bookings</h2>
+                                    </div>
+                                    <a href="/hospital/my-appointments" class="hms-text-link">View appointments</a>
+                                </div>
+                                <div class="hms-table-wrap">
+                                    <table class="hms-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Reference</th>
+                                                <th>Patient</th>
+                                                <th>Date</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-if="recent_appointments">
+                                                <t t-foreach="recent_appointments" t-as="appointment">
+                                                    <tr>
+                                                        <td data-label="Reference"><span class="hms-pill hms-pill--green"><t t-esc="appointment.reference"/></span></td>
+                                                        <td data-label="Patient"><t t-esc="appointment.patient_id.name"/></td>
+                                                        <td data-label="Date">
+                                                            <t t-if="appointment.appointment_date">
+                                                                <t t-esc="appointment.appointment_date.strftime('%d %b %Y, %I:%M %p')"/>
+                                                            </t>
+                                                            <t t-else="">-</t>
+                                                        </td>
+                                                        <td data-label="Status">
+                                                            <span t-att-class="'hms-status hms-status--' + (appointment.state or 'draft')">
+                                                                <t t-esc="appointment.state or 'draft'"/>
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                            </t>
+                                            <t t-else="">
+                                                <tr>
+                                                    <td colspan="4" class="hms-table-empty">No appointment records in your account yet.</td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </article>
+                        </section>
+
+                        <t t-if="is_admin">
+                            <section class="hms-admin-gateway">
+                                <div>
+                                    <span class="hms-kicker">Administrator access</span>
+                                    <h2>You also have full-hospital permissions</h2>
+                                    <p>Open the global dashboard to review all patient and appointment activity across the organization.</p>
+                                </div>
+                                <a href="/hospital/dashboard/admin" class="hms-btn hms-btn--primary">Open Admin Dashboard</a>
+                            </section>
+                        </t>
+                    </t>
+                </div>
+
+                <t t-call="website_hms.portal_footer"/>
+            </div>
+        </t>
+    </template>
+</odoo>

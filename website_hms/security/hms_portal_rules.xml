@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="rule_hms_patient_portal_owner" model="ir.rule">
+            <field name="name">Portal users manage only their patients</field>
+            <field name="model_id" ref="hospital_yk.model_hospital_patient"/>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+            <field name="domain_force">[('owner_user_id', '=', user.id)]</field>
+        </record>
+
+        <record id="rule_hms_appointment_portal_owner" model="ir.rule">
+            <field name="name">Portal users manage only their appointments</field>
+            <field name="model_id" ref="hospital_yk.model_hospital_appointment"/>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+            <field name="domain_force">[('owner_user_id', '=', user.id)]</field>
+        </record>
+    </data>
+</odoo>

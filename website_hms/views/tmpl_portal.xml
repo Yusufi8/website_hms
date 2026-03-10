@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="tmpl_my_patients" name="My Patients">
+        <t t-call="website.layout">
+            <t t-set="no_footer" t-value="True"/>
+            <div id="wrap" class="hms-page hms-portal-page">
+                <section class="hms-page-hero hms-page-hero--blue">
+                    <div class="container hms-page-hero__inner">
+                        <div>
+                            <div class="hms-breadcrumb">
+                                <a href="/hospital">Hospital</a>
+                                <span>/</span>
+                                <span><t t-esc="'Patient Registry' if is_admin else 'My Patients'"/></span>
+                            </div>
+                            <span class="hms-kicker hms-kicker--light">Patient activity</span>
+                            <h1><t t-esc="'Patient Registry' if is_admin else 'My Patients'"/></h1>
+                            <p><t t-esc="'Full list of all patients in the hospital system.' if is_admin else 'Only patients created under your account are shown here.'"/></p>
+                        </div>
+                        <div class="hms-inline-actions">
+                            <a href="/hospital/create-patient" class="hms-btn hms-btn--primary">Register Patient</a>
+                            <a href="/hospital/dashboard" class="hms-btn hms-btn--soft">Dashboard</a>
+                        </div>
+                    </div>
+                </section>
+
+                <t t-call="website_hms.portal_flash"/>
+
+                <div class="container hms-page-body">
+                    <section class="hms-data-card">
+                        <div class="hms-data-card__head">
+                            <div>
+                                <span class="hms-kicker">Search and manage</span>
+                                <h2><t t-esc="'Patient Registry' if is_admin else 'Patient Records'"/></h2>
+                                <p><t t-esc="result_count"/> matching record(s)</p>
+                            </div>
+                            <form action="/hospital/my-patients" method="GET" class="hms-search-form">
+                                <input type="text" name="search" class="hms-input" placeholder="Search name, reference or mobile" t-att-value="search"/>
+                                <button type="submit" class="hms-btn hms-btn--primary">Search</button>
+                            </form>
+                        </div>
+                        <div class="hms-table-wrap">
+                            <table class="hms-table">
+                                <thead>
+                                    <tr>
+                                        <th>Reference</th>
+                                        <th>Patient</th>
+                                        <th>Mobile</th>
+                                        <th>Owner</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-if="patients">
+                                        <t t-foreach="patients" t-as="patient">
+                                            <tr>
+                                                <td data-label="Reference"><span class="hms-pill"><t t-esc="patient.reference"/></span></td>
+                                                <td data-label="Patient">
+                                                    <div class="hms-table-user">
+                                                        <span class="hms-avatar"><t t-esc="(patient.name or 'P')[:1].upper()"/></span>
+                                                        <div>
+                                                            <strong><t t-esc="patient.name"/></strong>
+                                                            <small><t t-esc="patient.gender or 'Not set'"/></small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td data-label="Mobile"><t t-esc="patient.mobile or '-'"/></td>
+                                                <td data-label="Owner"><t t-esc="patient.owner_user_id.name or 'Unassigned'"/></td>
+                                                <td data-label="Actions">
+                                                    <div class="hms-row-actions">
+                                                        <a t-attf-href="/hospital/patient/#{patient.id}/edit" class="hms-action-link">Edit</a>
+                                                        <a t-attf-href="/hospital/book-appointment?patient_id=#{patient.id}" class="hms-action-link">Book</a>
+                                                        <form t-attf-action="/hospital/patient/#{patient.id}/delete" method="POST" class="hms-inline-form">
+                                                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                                            <button type="submit" class="hms-action-link hms-action-link--danger" data-hms-confirm="Delete this patient record?">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                    <t t-else="">
+                                        <tr>
+                                            <td colspan="5" class="hms-table-empty">
+                                                No patient records found. Start by registering a patient to populate your dashboard.
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+
+                <t t-call="website_hms.portal_footer"/>
+            </div>
+        </t>
+    </template>
+
+    <template id="tmpl_my_appointments" name="My Appointments">
+        <t t-call="website.layout">
+            <t t-set="no_footer" t-value="True"/>
+            <div id="wrap" class="hms-page hms-portal-page">
+                <section class="hms-page-hero hms-page-hero--green">
+                    <div class="container hms-page-hero__inner">
+                        <div>
+                            <div class="hms-breadcrumb">
+                                <a href="/hospital">Hospital</a>
+                                <span>/</span>
+                                <span><t t-esc="'Appointment Queue' if is_admin else 'My Appointments'"/></span>
+                            </div>
+                            <span class="hms-kicker hms-kicker--light">Appointment activity</span>
+                            <h1><t t-esc="'Appointment Queue' if is_admin else 'My Appointments'"/></h1>
+                            <p><t t-esc="'Full list of appointments across the hospital.' if is_admin else 'Only appointments tied to your account are shown here.'"/></p>
+                        </div>
+                        <div class="hms-inline-actions">
+                            <a href="/hospital/book-appointment" class="hms-btn hms-btn--primary">Book Appointment</a>
+                            <a href="/hospital/dashboard" class="hms-btn hms-btn--soft">Dashboard</a>
+                        </div>
+                    </div>
+                </section>
+
+                <t t-call="website_hms.portal_flash"/>
+
+                <div class="container hms-page-body">
+                    <section class="hms-data-card">
+                        <div class="hms-data-card__head">
+                            <div>
+                                <span class="hms-kicker">Search and manage</span>
+                                <h2><t t-esc="'Appointment Queue' if is_admin else 'Appointment Records'"/></h2>
+                                <p><t t-esc="result_count"/> matching record(s)</p>
+                            </div>
+                            <form action="/hospital/my-appointments" method="GET" class="hms-search-form">
+                                <input type="text" name="search" class="hms-input" placeholder="Search reference, patient or doctor" t-att-value="search"/>
+                                <button type="submit" class="hms-btn hms-btn--primary">Search</button>
+                            </form>
+                        </div>
+                        <div class="hms-table-wrap">
+                            <table class="hms-table">
+                                <thead>
+                                    <tr>
+                                        <th>Reference</th>
+                                        <th>Patient</th>
+                                        <th>Doctor</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-if="appointments">
+                                        <t t-foreach="appointments" t-as="appointment">
+                                            <tr>
+                                                <td data-label="Reference"><span class="hms-pill hms-pill--green"><t t-esc="appointment.reference"/></span></td>
+                                                <td data-label="Patient"><t t-esc="appointment.patient_id.name"/></td>
+                                                <td data-label="Doctor"><t t-esc="appointment.doctor_id.name or 'Not assigned'"/></td>
+                                                <td data-label="Date">
+                                                    <t t-if="appointment.appointment_date">
+                                                        <t t-esc="appointment.appointment_date.strftime('%d %b %Y, %I:%M %p')"/>
+                                                    </t>
+                                                    <t t-else="">-</t>
+                                                </td>
+                                                <td data-label="Status">
+                                                    <span t-att-class="'hms-status hms-status--' + (appointment.state or 'draft')">
+                                                        <t t-esc="appointment.state or 'draft'"/>
+                                                    </span>
+                                                </td>
+                                                <td data-label="Actions">
+                                                    <div class="hms-row-actions">
+                                                        <a t-attf-href="/hospital/appointment/#{appointment.id}/edit" class="hms-action-link">Edit</a>
+                                                        <form t-attf-action="/hospital/appointment/#{appointment.id}/delete" method="POST" class="hms-inline-form">
+                                                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                                            <button type="submit" class="hms-action-link hms-action-link--danger" data-hms-confirm="Delete this appointment?">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                    <t t-else="">
+                                        <tr>
+                                            <td colspan="6" class="hms-table-empty">
+                                                No appointment records found. Book your first appointment to start tracking activity here.
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+
+                <t t-call="website_hms.portal_footer"/>
+            </div>
+        </t>
+    </template>
+</odoo>

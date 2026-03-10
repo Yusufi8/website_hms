@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="tmpl_book_appt" name="Appointment Form">
+        <t t-call="website.layout">
+            <t t-set="no_footer" t-value="True"/>
+            <div id="wrap" class="hms-page hms-form-page">
+                <section class="hms-page-hero hms-page-hero--green">
+                    <div class="container hms-page-hero__inner">
+                        <div>
+                            <div class="hms-breadcrumb">
+                                <a href="/hospital">Hospital</a>
+                                <span>/</span>
+                                <span><t t-esc="page_title"/></span>
+                            </div>
+                            <span class="hms-kicker hms-kicker--light">Appointment booking</span>
+                            <h1><t t-esc="page_title"/></h1>
+                            <p><t t-esc="page_subtitle"/></p>
+                        </div>
+                        <div class="hms-inline-actions">
+                            <a href="/hospital/dashboard" class="hms-btn hms-btn--soft">Dashboard</a>
+                            <a href="/hospital/my-appointments" class="hms-btn hms-btn--ghost">My Appointments</a>
+                        </div>
+                    </div>
+                </section>
+
+                <t t-call="website_hms.portal_flash"/>
+
+                <div class="container hms-page-body">
+                    <div class="hms-form-layout">
+                        <section class="hms-form-card">
+                            <t t-if="errors and errors.get('general')">
+                                <div class="hms-form-error"><t t-esc="errors['general']"/></div>
+                            </t>
+
+                            <form t-att-action="submit_url" method="POST" class="hms-form">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                                <div class="hms-form-section">
+                                    <div class="hms-form-section__head">
+                                        <span class="hms-kicker">Visit setup</span>
+                                        <h2>Appointment details</h2>
+                                    </div>
+                                    <div class="hms-field-grid">
+                                        <div class="hms-field">
+                                            <label>Patient</label>
+                                            <select name="patient_id" t-att-class="'hms-input ' + ('is-invalid' if errors.get('patient_id') else '')">
+                                                <option value="">Select Patient</option>
+                                                <t t-foreach="patients" t-as="patient">
+                                                    <option t-att-value="patient.id" t-att-selected="'selected' if fd.get('patient_id') == str(patient.id) else None">
+                                                        <t t-esc="patient.name"/> (<t t-esc="patient.reference"/>)
+                                                    </option>
+                                                </t>
+                                            </select>
+                                            <small t-if="errors.get('patient_id')" class="hms-field-error"><t t-esc="errors['patient_id']"/></small>
+                                        </div>
+                                        <div class="hms-field">
+                                            <label>Date and Time</label>
+                                            <input type="datetime-local" name="appointment_date" t-att-value="fd.get('appointment_date', '')" t-att-class="'hms-input ' + ('is-invalid' if errors.get('appointment_date') else '')"/>
+                                            <small t-if="errors.get('appointment_date')" class="hms-field-error"><t t-esc="errors['appointment_date']"/></small>
+                                        </div>
+                                        <div class="hms-field">
+                                            <label>Preferred Doctor</label>
+                                            <select name="doctor_id" t-att-class="'hms-input ' + ('is-invalid' if errors.get('doctor_id') else '')">
+                                                <option value="">No Preference</option>
+                                                <t t-foreach="doctors" t-as="doctor">
+                                                    <option t-att-value="doctor.id" t-att-selected="'selected' if fd.get('doctor_id') == str(doctor.id) else None">
+                                                        Dr. <t t-esc="doctor.name"/>
+                                                    </option>
+                                                </t>
+                                            </select>
+                                            <small t-if="errors.get('doctor_id')" class="hms-field-error"><t t-esc="errors['doctor_id']"/></small>
+                                        </div>
+                                        <div class="hms-field">
+                                            <label>Priority</label>
+                                            <select name="priority" class="hms-input">
+                                                <option value="0" t-att-selected="'selected' if fd.get('priority', '2') == '0' else None">Very Low</option>
+                                                <option value="1" t-att-selected="'selected' if fd.get('priority', '2') == '1' else None">Low</option>
+                                                <option value="2" t-att-selected="'selected' if fd.get('priority', '2') == '2' else None">Normal</option>
+                                                <option value="3" t-att-selected="'selected' if fd.get('priority', '2') == '3' else None">High</option>
+                                            </select>
+                                        </div>
+                                        <div class="hms-field hms-field--full">
+                                            <label>Reason for Visit</label>
+                                            <textarea name="notes" class="hms-input hms-input--textarea"><t t-esc="fd.get('notes', '')"/></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="hms-form-actions">
+                                    <button type="submit" class="hms-btn hms-btn--primary"><t t-esc="primary_action_label"/></button>
+                                    <a t-att-href="secondary_action_url" class="hms-btn hms-btn--soft"><t t-esc="secondary_action_label"/></a>
+                                    <a href="/hospital/create-patient" class="hms-btn hms-btn--outline">Register Patient First</a>
+                                </div>
+                            </form>
+                        </section>
+
+                        <aside class="hms-side-card">
+                            <span class="hms-kicker">Before you submit</span>
+                            <h3>Keep appointment ownership clean and accurate</h3>
+                            <p>Only patients tied to your account appear in this form, which prevents cross-account edits and accidental data exposure.</p>
+                            <ul class="hms-bullet-list">
+                                <li>Appointments stay linked to the current account through <code>owner_user_id</code>.</li>
+                                <li>Draft or cancelled appointments can be deleted later from your activity table.</li>
+                                <li>Hospital administrators can still review the full queue from the admin dashboard.</li>
+                            </ul>
+                        </aside>
+                    </div>
+                </div>
+
+                <t t-call="website_hms.portal_footer"/>
+            </div>
+        </t>
+    </template>
+
+    <template id="tmpl_book_appt_success" name="Appointment Success">
+        <t t-call="website.layout">
+            <t t-set="no_footer" t-value="True"/>
+            <div id="wrap" class="hms-page hms-success-page">
+                <div class="container hms-page-body">
+                    <section class="hms-success-card">
+                        <span class="hms-success-card__badge">Appointment booked</span>
+                        <h1>Appointment created successfully</h1>
+                        <p>
+                            Appointment for <strong><t t-esc="appt.patient_id.name"/></strong> has been created and is now visible in your portal activity.
+                        </p>
+                        <div class="hms-success-ref"><t t-esc="appt.reference"/></div>
+                        <div class="hms-inline-actions">
+                            <a href="/hospital/my-appointments" class="hms-btn hms-btn--primary">My Appointments</a>
+                            <a href="/hospital/book-appointment" class="hms-btn hms-btn--soft">Book Another</a>
+                            <a href="/hospital/dashboard" class="hms-btn hms-btn--outline">Dashboard</a>
+                        </div>
+                    </section>
+                </div>
+                <t t-call="website_hms.portal_footer"/>
+            </div>
+        </t>
+    </template>
+</odoo>

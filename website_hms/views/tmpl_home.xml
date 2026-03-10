@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_flash" name="Hospital Portal Flash">
+        <t t-if="flash">
+            <div class="container hms-flash-shell">
+                <div t-att-class="'hms-alert ' + ('hms-alert-err' if flash_type == 'err' else 'hms-alert-ok')">
+                    <span class="hms-alert-dot"></span>
+                    <span><t t-esc="flash"/></span>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="portal_footer" name="Hospital Portal Footer">
+        <section class="hms-site-footer">
+            <div class="container">
+                <div class="hms-site-footer__top">
+                    <div class="hms-brand-mark">
+                        <img src="/website_hms/static/src/img/hms.png" alt="YK Hospital"/>
+                        <div>
+                            <strong>YK Hospital</strong>
+                            <span>Patient-first digital care portal</span>
+                        </div>
+                    </div>
+                    <div class="hms-footer-actions">
+                        <a href="/hospital/dashboard" class="hms-link-chip">My Dashboard</a>
+                        <a href="/hospital/create-patient" class="hms-link-chip">Register Patient</a>
+                        <a href="/hospital/book-appointment" class="hms-link-chip">Book Appointment</a>
+                    </div>
+                </div>
+                <div class="hms-site-footer__grid">
+                    <div>
+                        <h4>Emergency and Support</h4>
+                        <p>24x7 emergency unit, specialist clinics, diagnostics and assisted patient follow-up.</p>
+                    </div>
+                    <div>
+                        <h4>Contact</h4>
+                        <p><a href="tel:+15555555556">+1 555 555 5556</a></p>
+                        <p><a href="mailto:care@ykhospital.com">care@ykhospital.com</a></p>
+                    </div>
+                    <div>
+                        <h4>Hours</h4>
+                        <p>Appointments: Mon-Sat, 8:00 AM to 8:00 PM</p>
+                        <p>Emergency: Always open</p>
+                    </div>
+                </div>
+                <div class="hms-site-footer__bottom">
+                    <span>&#169; <span id="hms-year"></span> YK Hospital</span>
+                    <span>Secure website portal for patients and administrators</span>
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <template id="tmpl_home" name="Hospital Portal Home">
+        <t t-call="website.layout">
+            <t t-set="no_footer" t-value="True"/>
+            <div id="wrap" class="hms-page hms-home">
+                <section class="hms-home-hero">
+                    <div class="hms-home-hero__media">
+                        <img src="/website_hms/static/src/img/hero.png" alt="YK Hospital care team"/>
+                    </div>
+                    <div class="container hms-home-hero__content">
+                        <div class="hms-eyebrow">Trusted digital hospital experience</div>
+                        <h1>Trusted Care for Every Stage of Life</h1>
+                        <p class="hms-home-hero__copy">
+                            Book specialist consultations, register patients, and follow your care activity from one clean, secure portal.
+                        </p>
+                        <div class="hms-home-hero__actions">
+                            <a href="/hospital/create-patient" class="hms-btn hms-btn--primary">Register Patient</a>
+                            <a href="/hospital/book-appointment" class="hms-btn hms-btn--ghost">Book Appointment</a>
+                            <t t-if="is_auth">
+                                <a href="/hospital/dashboard" class="hms-btn hms-btn--soft">My Dashboard</a>
+                            </t>
+                            <t t-if="is_admin">
+                                <a href="/hospital/dashboard/admin" class="hms-btn hms-btn--soft">Admin Overview</a>
+                            </t>
+                        </div>
+                        <div class="hms-stat-band">
+                            <article class="hms-stat-chip">
+                                <strong><t t-esc="total_patients or 0"/></strong>
+                                <span>Patients registered</span>
+                            </article>
+                            <article class="hms-stat-chip">
+                                <strong><t t-esc="total_appointments or 0"/></strong>
+                                <span>Appointments booked</span>
+                            </article>
+                            <article class="hms-stat-chip">
+                                <strong><t t-esc="upcoming_count or 0"/></strong>
+                                <span>Upcoming visits</span>
+                            </article>
+                        </div>
+                    </div>
+                </section>
+
+                <t t-call="website_hms.portal_flash"/>
+
+                <section class="hms-section">
+                    <div class="container">
+                        <div class="hms-section-head">
+                            <div>
+                                <span class="hms-kicker">Core services</span>
+                                <h2>Designed for modern hospital journeys</h2>
+                            </div>
+                            <p>Every section of the portal is optimized for clarity, speed and patient confidence across desktop and mobile.</p>
+                        </div>
+                        <div class="hms-card-grid hms-card-grid--4">
+                            <article class="hms-feature-card">
+                                <span class="hms-feature-icon">ER</span>
+                                <h3>Emergency care</h3>
+                                <p>Round-the-clock emergency response with specialist escalation and rapid triage support.</p>
+                            </article>
+                            <article class="hms-feature-card">
+                                <span class="hms-feature-icon">OP</span>
+                                <h3>Outpatient clinics</h3>
+                                <p>Structured specialist consultations with cleaner scheduling and patient preparation guidance.</p>
+                            </article>
+                            <article class="hms-feature-card">
+                                <span class="hms-feature-icon">DX</span>
+                                <h3>Diagnostics</h3>
+                                <p>Appointments, investigations and follow-up notes aligned with one patient profile.</p>
+                            </article>
+                            <article class="hms-feature-card">
+                                <span class="hms-feature-icon">PR</span>
+                                <h3>Portal records</h3>
+                                <p>Track your own patients, appointments and upcoming visits from a secure personal dashboard.</p>
+                            </article>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="hms-section hms-section--tint">
+                    <div class="container hms-split">
+                        <article class="hms-panel">
+                            <span class="hms-kicker">Hospital information</span>
+                            <h2>Clinical excellence with a calmer digital front door</h2>
+                            <p>YK Hospital combines specialist care, emergency readiness and secure patient administration in one connected care flow.</p>
+                            <ul class="hms-bullet-list">
+                                <li>Patient-first communication and transparent treatment journeys.</li>
+                                <li>Secure account ownership for personal records and appointments.</li>
+                                <li>Fast registration and appointment booking from any device.</li>
+                                <li>Role-based administrator dashboard for full-hospital oversight.</li>
+                            </ul>
+                        </article>
+                        <article class="hms-panel hms-panel--info">
+                            <span class="hms-kicker">Visit details</span>
+                            <div class="hms-info-list">
+                                <div>
+                                    <strong>Emergency</strong>
+                                    <span>24x7 always open</span>
+                                </div>
+                                <div>
+                                    <strong>Appointments</strong>
+                                    <span>Mon-Sat, 8:00 AM to 8:00 PM</span>
+                                </div>
+                                <div>
+                                    <strong>Main campus</strong>
+                                    <span>YK Hospital Medical Center</span>
+                                </div>
+                                <div>
+                                    <strong>Helpline</strong>
+                                    <span>+1 555 555 5556</span>
+                                </div>
+                            </div>
+                            <div class="hms-inline-actions">
+                                <a href="/hospital/book-appointment" class="hms-btn hms-btn--primary">Book Consultation</a>
+                                <a href="/hospital/dashboard" class="hms-btn hms-btn--soft">Open Dashboard</a>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="hms-section">
+                    <div class="container">
+                        <div class="hms-section-head">
+                            <div>
+                                <span class="hms-kicker">How it works</span>
+                                <h2>Three clear steps from registration to follow-up</h2>
+                            </div>
+                            <p>The portal flow is intentionally simple so patients and staff can act quickly with less confusion.</p>
+                        </div>
+                        <div class="hms-step-grid">
+                            <article class="hms-step-card">
+                                <span>01</span>
+                                <h3>Create your patient profile</h3>
+                                <p>Register the patient once with contact details, guardian information and medical notes.</p>
+                                <a href="/hospital/create-patient">Register patient</a>
+                            </article>
+                            <article class="hms-step-card">
+                                <span>02</span>
+                                <h3>Book the right appointment</h3>
+                                <p>Select your patient, preferred doctor, and visit time using the appointment form.</p>
+                                <a href="/hospital/book-appointment">Book appointment</a>
+                            </article>
+                            <article class="hms-step-card">
+                                <span>03</span>
+                                <h3>Track personal activity</h3>
+                                <p>Use the dashboard to see your patients, upcoming visits and recent appointment history.</p>
+                                <a href="/hospital/dashboard">Open dashboard</a>
+                            </article>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="hms-cta-band">
+                    <div class="container hms-cta-band__inner">
+                        <div>
+                            <span class="hms-kicker hms-kicker--light">Secure portal access</span>
+                            <h2>Built for patients, families and hospital administrators</h2>
+                            <p>Normal users see only their own activity. Hospital administrators get a separate full-system dashboard.</p>
+                        </div>
+                        <div class="hms-home-hero__actions">
+                            <a href="/hospital/dashboard" class="hms-btn hms-btn--primary">Go to Dashboard</a>
+                            <a href="/hospital/my-appointments" class="hms-btn hms-btn--ghost">My Appointments</a>
+                        </div>
+                    </div>
+                </section>
+
+                <t t-call="website_hms.portal_footer"/>
+            </div>
+        </t>
+    </template>
+</odoo>

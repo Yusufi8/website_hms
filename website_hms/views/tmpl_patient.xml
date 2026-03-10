@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="tmpl_create_patient" name="Patient Form">
+        <t t-call="website.layout">
+            <t t-set="no_footer" t-value="True"/>
+            <div id="wrap" class="hms-page hms-form-page">
+                <section class="hms-page-hero hms-page-hero--blue">
+                    <div class="container hms-page-hero__inner">
+                        <div>
+                            <div class="hms-breadcrumb">
+                                <a href="/hospital">Hospital</a>
+                                <span>/</span>
+                                <span><t t-esc="page_title"/></span>
+                            </div>
+                            <span class="hms-kicker hms-kicker--light">Patient profile</span>
+                            <h1><t t-esc="page_title"/></h1>
+                            <p><t t-esc="page_subtitle"/></p>
+                        </div>
+                        <div class="hms-inline-actions">
+                            <a href="/hospital/dashboard" class="hms-btn hms-btn--soft">Dashboard</a>
+                            <a href="/hospital/my-patients" class="hms-btn hms-btn--ghost">My Patients</a>
+                        </div>
+                    </div>
+                </section>
+
+                <t t-call="website_hms.portal_flash"/>
+
+                <div class="container hms-page-body">
+                    <div class="hms-form-layout">
+                        <section class="hms-form-card">
+                            <t t-if="errors and errors.get('general')">
+                                <div class="hms-form-error"><t t-esc="errors['general']"/></div>
+                            </t>
+
+                            <form t-att-action="submit_url" method="POST" class="hms-form">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                                <div class="hms-form-section">
+                                    <div class="hms-form-section__head">
+                                        <span class="hms-kicker">Primary details</span>
+                                        <h2>Patient identity</h2>
+                                    </div>
+                                    <div class="hms-field-grid">
+                                        <div class="hms-field">
+                                            <label>Full Name</label>
+                                            <input type="text" name="name" t-att-value="fd.get('name', '')" t-att-class="'hms-input ' + ('is-invalid' if errors.get('name') else '')"/>
+                                            <small t-if="errors.get('name')" class="hms-field-error"><t t-esc="errors['name']"/></small>
+                                        </div>
+                                        <div class="hms-field">
+                                            <label>Gender</label>
+                                            <select name="gender" t-att-class="'hms-input ' + ('is-invalid' if errors.get('gender') else '')">
+                                                <option value="">Select Gender</option>
+                                                <option value="male" t-att-selected="'selected' if fd.get('gender') == 'male' else None">Male</option>
+                                                <option value="female" t-att-selected="'selected' if fd.get('gender') == 'female' else None">Female</option>
+                                            </select>
+                                            <small t-if="errors.get('gender')" class="hms-field-error"><t t-esc="errors['gender']"/></small>
+                                        </div>
+                                        <div class="hms-field">
+                                            <label>Date of Birth</label>
+                                            <input type="date" name="date_of_birth" class="hms-input" t-att-value="fd.get('date_of_birth', '')"/>
+                                        </div>
+                                        <div class="hms-field">
+                                            <label>Mobile</label>
+                                            <input type="tel" name="mobile" t-att-value="fd.get('mobile', '')" t-att-class="'hms-input ' + ('is-invalid' if errors.get('mobile') else '')"/>
+                                            <small t-if="errors.get('mobile')" class="hms-field-error"><t t-esc="errors['mobile']"/></small>
+                                        </div>
+                                        <div class="hms-field">
+                                            <label>Email</label>
+                                            <input type="email" name="email" class="hms-input" t-att-value="fd.get('email', '')"/>
+                                        </div>
+                                        <div class="hms-field hms-field--full">
+                                            <label>Address</label>
+                                            <textarea name="address" class="hms-input hms-input--textarea"><t t-esc="fd.get('address', '')"/></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="hms-form-section">
+                                    <div class="hms-form-section__head">
+                                        <span class="hms-kicker">Guardian information</span>
+                                        <h2>Support contacts</h2>
+                                    </div>
+                                    <div class="hms-field-grid">
+                                        <div class="hms-field">
+                                            <label>Relation</label>
+                                            <select name="guardian" t-att-class="'hms-input ' + ('is-invalid' if errors.get('guardian') else '')">
+                                                <option value="">No Guardian</option>
+                                                <option value="Father" t-att-selected="'selected' if fd.get('guardian') == 'Father' else None">Father</option>
+                                                <option value="Mother" t-att-selected="'selected' if fd.get('guardian') == 'Mother' else None">Mother</option>
+                                                <option value="Brother" t-att-selected="'selected' if fd.get('guardian') == 'Brother' else None">Brother</option>
+                                                <option value="Sister" t-att-selected="'selected' if fd.get('guardian') == 'Sister' else None">Sister</option>
+                                                <option value="Friend" t-att-selected="'selected' if fd.get('guardian') == 'Friend' else None">Friend</option>
+                                            </select>
+                                            <small t-if="errors.get('guardian')" class="hms-field-error"><t t-esc="errors['guardian']"/></small>
+                                        </div>
+                                        <div class="hms-field">
+                                            <label>Guardian Name</label>
+                                            <input type="text" name="guardian_name" class="hms-input" t-att-value="fd.get('guardian_name', '')"/>
+                                        </div>
+                                        <div class="hms-field">
+                                            <label>Guardian Mobile</label>
+                                            <input type="tel" name="guardian_mobile" class="hms-input" t-att-value="fd.get('guardian_mobile', '')"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="hms-form-section">
+                                    <div class="hms-form-section__head">
+                                        <span class="hms-kicker">Clinical notes</span>
+                                        <h2>Medical context</h2>
+                                    </div>
+                                    <div class="hms-field-grid">
+                                        <div class="hms-field hms-field--full">
+                                            <label>Medical History</label>
+                                            <textarea name="medical_history" class="hms-input hms-input--textarea"><t t-esc="fd.get('medical_history', '')"/></textarea>
+                                        </div>
+                                        <div class="hms-field hms-field--full">
+                                            <label>Additional Notes</label>
+                                            <textarea name="notes" class="hms-input hms-input--textarea"><t t-esc="fd.get('notes', '')"/></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="hms-form-actions">
+                                    <button type="submit" class="hms-btn hms-btn--primary"><t t-esc="primary_action_label"/></button>
+                                    <a t-att-href="secondary_action_url" class="hms-btn hms-btn--soft"><t t-esc="secondary_action_label"/></a>
+                                    <t t-if="patient_record">
+                                        <a t-attf-href="/hospital/book-appointment?patient_id=#{patient_record.id}" class="hms-btn hms-btn--outline">Book for This Patient</a>
+                                    </t>
+                                </div>
+                            </form>
+                        </section>
+
+                        <aside class="hms-side-card">
+                            <span class="hms-kicker">Why this matters</span>
+                            <h3>Structured patient records improve every next step</h3>
+                            <p>Complete patient details make appointment booking, emergency contact handling and follow-up coordination faster and safer.</p>
+                            <ul class="hms-bullet-list">
+                                <li>Records stay linked to your account with owner-based access control.</li>
+                                <li>Use the same patient profile for future appointments and quick edits.</li>
+                                <li>Hospital administrators can review activity without exposing your personal dashboard to other users.</li>
+                            </ul>
+                            <t t-if="patient_record">
+                                <div class="hms-side-note">
+                                    <strong>Reference</strong>
+                                    <span><t t-esc="patient_record.reference"/></span>
+                                </div>
+                            </t>
+                        </aside>
+                    </div>
+                </div>
+
+                <t t-call="website_hms.portal_footer"/>
+            </div>
+        </t>
+    </template>
+
+    <template id="tmpl_create_patient_success" name="Patient Created Success">
+        <t t-call="website.layout">
+            <t t-set="no_footer" t-value="True"/>
+            <div id="wrap" class="hms-page hms-success-page">
+                <div class="container hms-page-body">
+                    <section class="hms-success-card">
+                        <span class="hms-success-card__badge">Patient saved</span>
+                        <h1>Patient registration completed</h1>
+                        <p><strong><t t-esc="patient.name"/></strong> is now available inside your hospital portal account.</p>
+                        <div class="hms-success-ref"><t t-esc="patient.reference"/></div>
+                        <div class="hms-inline-actions">
+                            <a t-attf-href="/hospital/book-appointment?patient_id=#{patient.id}" class="hms-btn hms-btn--primary">Book Appointment</a>
+                            <a href="/hospital/my-patients" class="hms-btn hms-btn--soft">My Patients</a>
+                            <a href="/hospital/dashboard" class="hms-btn hms-btn--outline">Dashboard</a>
+                        </div>
+                    </section>
+                </div>
+                <t t-call="website_hms.portal_footer"/>
+            </div>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hms_patient_portal,hms.patient.portal,hospital_yk.model_hospital_patient,base.group_portal,1,1,1,1
+access_hms_appt_portal,hms.appt.portal,hospital_yk.model_hospital_appointment,base.group_portal,1,1,1,1
+access_hms_patient_user,hms.patient.user,hospital_yk.model_hospital_patient,base.group_user,1,1,1,1
+access_hms_appt_user,hms.appt.user,hospital_yk.model_hospital_appointment,base.group_user,1,1,1,1
